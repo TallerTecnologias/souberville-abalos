@@ -1,5 +1,6 @@
 const HDWalletProvider = require('truffle-hdwallet-provider')
-const mnemonic = 'incluir Mnemonic'
+const mnemonic =
+  'hero flight hub village tank cradle visual economy aisle already patch deal'
 
 module.exports = {
   networks: {
