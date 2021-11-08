@@ -18,6 +18,18 @@ contract Bet {
     }
 
     function isActive() view public returns (bool){
-        return (_isActive);
+        return _isActive;
+    }
+
+    function getName() view public returns (string memory){
+        return _name;
+    }
+
+    function getOptionA() view public returns (string memory){
+        return _optionA;
+    }
+
+    function getOptionB() view public returns (string memory){
+        return _optionB;
     }
 }
