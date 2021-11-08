@@ -1,23 +1,19 @@
 {
-  "name": "apuestas",
+  "name": "election",
   "version": "1.0.0",
-  "main": "soljson-v0.8.4+commit.c7e474f2.js",
+  "description": "",
+  "main": "truffle.js",
   "directories": {
     "test": "test"
   },
-  "dependencies": {
-    "chai": "^4.3.4",
-    "truffle": "^5.4.16",
-    "truffle-hdwallet-provider": "^1.0.17",
-    "web3": "^1.6.0"
-  },
-  "devDependencies": {
-    "webpack": "^5.61.0"
-  },
   "scripts": {
-    "test": "mocha"
+    "dev": "lite-server",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
-  "description": ""
+  "devDependencies": {
+    "lite-server": "^2.6.1",
+    "truffle": "^5.4.18"
+  }
 }
