@@ -14,7 +14,7 @@ contract BetFactory is Ownable {
   Bet[] public bets;
   mapping (uint => address) public betToOwner;
 
-  function createBet(address oracleAddress, string memory name, string memory optionA, string memory optionB) public {
+  function createBet(address oracleAddress, string memory name, string memory optionA, string memory optionB) public payable{
     bets.push(new Bet(oracleAddress, name, optionA, optionB));
     //Ver si tenemos que usar el address de la apuesta como id
     uint id = bets.length - 1;
