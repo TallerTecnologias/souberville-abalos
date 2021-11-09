@@ -5,7 +5,7 @@ contract('BetFactory', function (accounts) {
   it('Inicializa sin instancias de apuestas', function () {
     return BetFactory.deployed()
       .then(function (instance) {
-        return instance.getActiveBets()
+        return instance.getBets()
       })
       .then(function (result) {
         assert.equal(result.length, 0)

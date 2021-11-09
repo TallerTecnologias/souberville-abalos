@@ -30,13 +30,13 @@ App = {
       App.contracts.BetFactory = TruffleContract(betFactory)
       // Connect provider to interact with contract
       App.contracts.BetFactory.setProvider(App.web3Provider)
-      //App.listenForEvents()
+      App.listenForEvents()
       return App.render()
     })
   },
 
   // Listen for events emitted from the contract
-  /*listenForEvents: function () {
+  listenForEvents: function () {
     App.contracts.BetFactory.deployed().then(function (instance) {
       // Restart Chrome if you are unable to receive this event
       // This is a known issue with Metamask
@@ -55,7 +55,7 @@ App = {
           // Reload when a new vote is recorded
         })
     })
-  }, */
+  },
 
   render: function () {
     // var loader = $("#loader");
@@ -129,7 +129,7 @@ App = {
   getQuantity: function () {
     App.contracts.BetFactory.deployed()
       .then(function (instance) {
-        return instance.getActiveBets()
+        return instance.getBets()
       })
       .then(function (result) {
         $('#betQuantity').html('Cantidad de Apuestas: ' + result.length)

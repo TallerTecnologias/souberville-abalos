@@ -22,9 +22,10 @@ contract BetFactory is Ownable {
     emit NewBet(oracleAddress, name, optionA, optionB);
   }
 
-  function getActiveBets() view public returns(Bet[] memory) {
-    //return bets;
-    
+
+  function getBets() view public returns(Bet[] memory) {
+    return bets;
+    /*
     Bet[] memory result;
     uint position = 0;
     for (uint index = 0; index < bets.length; index++) {
@@ -35,6 +36,6 @@ contract BetFactory is Ownable {
       }
     }
     return result;
-    
+    */
   }
 }
