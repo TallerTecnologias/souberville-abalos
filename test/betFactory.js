@@ -1,4 +1,4 @@
-var BetFactory = artifacts.require('./BetFactory.sol')
+/* var BetFactory = artifacts.require('./BetFactory.sol')
 contract('BetFactory', function (accounts) {
   var betfactoryInstance
 
@@ -37,7 +37,7 @@ contract('BetFactory', function (accounts) {
         assert.equal(bets[3], 'Opcion 2', 'Opcion 2 correcta')
       })
   })
-  /*
+
   it('allows a voter to cast a vote', function () {
     return Election.deployed()
       .then(function (instance) {
@@ -125,5 +125,5 @@ contract('BetFactory', function (accounts) {
         var voteCount = candidate2[2]
         assert.equal(voteCount, 1, 'candidate 2 did not receive any votes')
       })
-  }) */
-})
+  }) 
+}) */

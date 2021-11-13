@@ -1,4 +1,4 @@
-var Election = artifacts.require("./Election.sol");
+/* var Election = artifacts.require("./Election.sol");
 
 contract("Election", function(accounts) {
   var electionInstance;
@@ -86,4 +86,4 @@ contract("Election", function(accounts) {
       assert.equal(voteCount, 1, "candidate 2 did not receive any votes");
     });
   });
-});
+}); */
