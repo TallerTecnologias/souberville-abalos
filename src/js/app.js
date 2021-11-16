@@ -4,11 +4,11 @@ App = {
   account: '0x0',
   hasVoted: false,
 
-  init: function () {
-    return App.initWeb3()
+  init:  function () {
+    return  App.initWeb3()
   },
 
-  initWeb3: function () {
+  initWeb3:  function () {
     // TODO: refactor conditional
     if (typeof web3 !== 'undefined') {
       // If a web3 instance is already provided by Meta Mask.
@@ -21,17 +21,17 @@ App = {
       )
       web3 = new Web3(App.web3Provider)
     }
-    return App.initContract()
+    return  App.initContract()
   },
 
-  initContract: function () {
+  initContract:  function () {
     $.getJSON('BetFactory.json', function (betFactory) {
       // Instantiate a new truffle contract from the artifact
       App.contracts.BetFactory = TruffleContract(betFactory)
       // Connect provider to interact with contract
       App.contracts.BetFactory.setProvider(App.web3Provider)
       App.listenForEvents()
-      return App.render()
+      return  App.render()
     })
   },
 
@@ -54,29 +54,55 @@ App = {
     })
   },
 
-  render: function () {
+  render:  function () {
 
     web3.eth.getCoinbase(function (err, account) {
       if (err === null) {
         App.account = account
         $('#accountAddress').html('Cuenta: ' + account)
-        App.getQuantity()
+         App.getQuantity()
+         App.getBetList()
       }
     })
 
   },
 
-  getQuantity: function () {
+  getQuantity:  function () {
     App.contracts.BetFactory.deployed()
       .then(function (instance) {
-        return instance.getBets()
+        return  instance.getBets()
       })
       .then(function (result) {
         $('#betQuantity').html('Cantidad de Apuestas: ' + result.length)
       })
   },
 
-  createBet: async function () {
+  getBetList: function () {
+    App.contracts.BetFactory.deployed()
+      .then(function (instance) {
+        return  instance.getBets()
+      })
+      .then(function (bets) {
+        App.getBetDetail(bets)
+      })
+  },
+
+  getBetDetail: function (bets) {
+    $("#betCards").empty();
+    for (bet of bets) {
+
+      $("#betCards").append(`<div class="bet">
+        <ul>
+          <li>Name: ${bet._name}</li>
+          <li>Opcion A: ${bet._optionA}</li>
+          <li>Opcion B: ${bet._optionB}</li>
+        </ul>
+      </div>`);
+    }
+    
+  },
+
+  _createBet: async function () {
     const betName = document.getElementById('betName').value
     const optionA = document.getElementById('optionA').value
     const optionB = document.getElementById('optionB').value
@@ -86,7 +112,13 @@ App = {
       instance.createBet(oracleAddress, betName, optionA, optionB)
     })
     console.log('Despues create Bet')
-  }
+  },
+  get createBet() {
+    return this._createBet
+  },
+  set createBet(value) {
+    this._createBet = value
+  },
 }
 
 $(function () {
