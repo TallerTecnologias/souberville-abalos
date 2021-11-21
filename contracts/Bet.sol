@@ -114,6 +114,18 @@ contract Bet is Ownable{
         }
     }
 
+    function GetName() public view returns(string memory){
+       return _name;
+    } 
+    
+    function GetOptionA() public view returns(string memory){
+       return _optionA;
+    } 
+    
+    function GetOptionB() public view returns(string memory){
+       return _optionB;
+    } 
+
     function AmountOne() public view returns(uint256){
        return totalBetsOption1;
     }
