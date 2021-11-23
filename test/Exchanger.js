@@ -19,14 +19,14 @@ contract('Exchanger', ([deployer, investor]) => {
   })
 
   describe('Deployamiento de BetCoin', async () => {
-    it('El contrato tiene nombre', async () => {
+    it('El contrato de BetCoin tiene nombre', async () => {
       const name = await betCoin.name()
       assert.equal(name, 'BetCoin')
     })
   })
 
   describe('Deployamiento de Exchanger', async () => {
-    it('El contrato tiene nombre', async () => {
+    it('El contrato de Exchanger tiene nombre', async () => {
       const name = await exchanger.name()
       assert.equal(name, 'BetCoin Exchanger')
     })
