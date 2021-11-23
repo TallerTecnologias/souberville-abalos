@@ -2,40 +2,39 @@ App = {
   web3Provider: null,
   contracts: {},
   account: '0x0',
-  hasVoted: false,
 
-  init:  function () {
-    return  App.initWeb3()
+
+  init: function () {
+    return App.initWeb3()
   },
 
   initWeb3:  function () {
-    // TODO: refactor conditional
     if (typeof web3 !== 'undefined') {
-      // If a web3 instance is already provided by Meta Mask.
+      // Si ya existe una instancia de web3 provista por MetaMask
       App.web3Provider = web3.currentProvider
       web3 = new Web3(web3.currentProvider)
     } else {
-      // Specify default instance if no web3 instance provided
+      // Sino se crea una instancia default
       App.web3Provider = new Web3.providers.HttpProvider(
         'http://localhost:7545'
       )
       web3 = new Web3(App.web3Provider)
     }
-    return  App.initContract()
+    return App.initContract()
   },
 
-  initContract:  function () {
+  initContract: async function () {
     $.getJSON('BetFactory.json', function (betFactory) {
-      // Instantiate a new truffle contract from the artifact
+      // Instancia un nuevo contrato truffle desde el artifact
       App.contracts.BetFactory = TruffleContract(betFactory)
-      // Connect provider to interact with contract
+      // Conecta al proveedor para interactuar con el contrato
       App.contracts.BetFactory.setProvider(App.web3Provider)
       App.listenForEvents()
-      return  App.render()
+      return App.render()
     })
   },
 
-  // Listen for events emitted from the contract
+  // Escucha los eventos emitidos en el contrato
   listenForEvents: function () {
     App.contracts.BetFactory.deployed().then(function (instance) {
       instance
@@ -46,25 +45,35 @@ App = {
             toBlock: 'latest'
           }
         )
-        .watch(function (error, event) {
+        .watch( async function (error, event) {
+          App.render()
           console.log('event triggered', event)
-          console.log('event triggered', error)
-          // Reload when a new vote is recorded
         })
     })
   },
 
-  render:  function () {
-
+  //Recarga datos
+  render: function () {
     web3.eth.getCoinbase(function (err, account) {
       if (err === null) {
         App.account = account
-        $('#accountAddress').html('Cuenta: ' + account)
-         App.getQuantity()
-         App.getBetList()
+        $('#accountAddress').html('Usted está conectado con la address: ' + account)
+        App.getQuantity()
+        App.getBetTiles()
       }
     })
+  },
 
+  getBetTiles: function () {
+    App.contracts.BetFactory.deployed()
+      .then(function (instance) {
+        return  instance.getAllBetsTiles()
+      })
+      .then(function (result) {
+          $("#tiles").empty();
+          $("#tiles").append(result.toString());
+        
+      })
   },
 
   getQuantity:  function () {
@@ -73,33 +82,8 @@ App = {
         return  instance.getBets()
       })
       .then(function (result) {
-        $('#betQuantity').html('Cantidad de Apuestas: ' + result.length)
+        $('#betQuantity').html('Cantidad de Apuestas Creadas: ' + result.length)
       })
-  },
-
-  getBetList: function () {
-    App.contracts.BetFactory.deployed()
-      .then(function (instance) {
-        return  instance.getBets()
-      })
-      .then(function (bets) {
-        App.getBetDetail(bets)
-      })
-  },
-
-  getBetDetail: function (bets) {
-    $("#betCards").empty();
-    for (bet of bets) {
-
-      $("#betCards").append(`<div class="bet">
-        <ul>
-          <li>Name: ${bet._name}</li>
-          <li>Opcion A: ${bet._optionA}</li>
-          <li>Opcion B: ${bet._optionB}</li>
-        </ul>
-      </div>`);
-    }
-    
   },
 
   _createBet: async function () {
@@ -113,9 +97,11 @@ App = {
     })
     console.log('Despues create Bet')
   },
+
   get createBet() {
     return this._createBet
   },
+
   set createBet(value) {
     this._createBet = value
   },

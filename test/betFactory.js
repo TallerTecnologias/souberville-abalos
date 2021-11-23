@@ -1,129 +1,83 @@
-/* var BetFactory = artifacts.require('./BetFactory.sol')
-contract('BetFactory', function (accounts) {
-  var betfactoryInstance
+const BetFactory = artifacts.require('BetFactory')
 
-  it('Inicializa sin instancias de apuestas', function () {
-    return BetFactory.deployed()
-      .then(function (instance) {
-        return instance.getBets()
-      })
-      .then(function (result) {
-        assert.equal(result.length, 0)
-      })
+contract('BetFactory', function () {
+  let betFactory
+
+  before(async () => {
+    betFactory = await BetFactory.new()
   })
 
-  it('Cantidad de apuestas es 1 al crear una', function () {
-    return BetFactory.deployed()
-      .then(function (instance) {
-        betfactoryInstance = instance
-        betfactoryInstance.createBet(
-          '0x5c256913fd6636d9d109f440e09e42caad5f95b2',
-          'Nombre apuesta',
-          'Opcion 1',
-          'Opcion 2'
-        )
-      })
-      .then(function () {
-        return betfactoryInstance.bets(0)
-      })
-      .then(function (bet) {
-        assert.equal(
-          bet[0],
-          '0x5c256913fd6636d9d109f440e09e42caad5f95b2',
-          'el address es correcto'
-        )
-        assert.equal(bets[1], 'Nombre apuesta', 'el nombre es correcto')
-        assert.equal(bets[2], 'Opcion 1', 'Opcion 1 correcta')
-        assert.equal(bets[3], 'Opcion 2', 'Opcion 2 correcta')
-      })
+  describe('Deployamiento de BetFactory', async () => {
+    /*it('El contrato base tiene versión 1', async () => {
+      const version = await betFactory.version()
+      assert.equal(version, 1)
+    })
+    it('El contrato base tiene nombre', async () => {
+      const name = await betFactory.contractName()
+      assert.equal(name, 'Factory of Bets')
+    })*/
+    it('Inicializa con 1 (una) instancia de apuestas default', async function () {
+      const betsQuantity = await betFactory.getBetsCount()
+      assert.equal(betsQuantity, 1)
+    })
   })
 
-  it('allows a voter to cast a vote', function () {
-    return Election.deployed()
-      .then(function (instance) {
-        electionInstance = instance
-        candidateId = 1
-        return electionInstance.vote(candidateId, { from: accounts[0] })
-      })
-      .then(function (receipt) {
-        assert.equal(receipt.logs.length, 1, 'an event was triggered')
-        assert.equal(
-          receipt.logs[0].event,
-          'votedEvent',
-          'the event type is correct'
-        )
-        assert.equal(
-          receipt.logs[0].args._candidateId.toNumber(),
-          candidateId,
-          'the candidate id is correct'
-        )
-        return electionInstance.voters(accounts[0])
-      })
-      .then(function (voted) {
-        assert(voted, 'the voter was marked as voted')
-        return electionInstance.candidates(candidateId)
-      })
-      .then(function (candidate) {
-        var voteCount = candidate[2]
-        assert.equal(voteCount, 1, "increments the candidate's vote count")
-      })
+  describe('Emisión de una apuesta', async () => {
+    // Datos para crear la apuesta
+    const address = '0x5c256913fd6636d9d109f440e09e42caad5f95b2'
+    const name = 'Clásico Uruguayo'
+    const optionA = 'Gana Peñarol'
+    const optionB = 'No Gana Peñarol'
+    let result
+
+    it('Verifica información del evento', async function () {
+      // Verifica que los log fueron lanzados con los datos correctos
+      result = await betFactory.createBet(address, name, optionA, optionB)
+      const emitedEvent = result.logs[1].args
+
+      // no es posible leer el address de la bet
+      // assert.equal(emitedEvent.oracleAddress, address)
+      assert.equal(emitedEvent.name, name)
+      assert.equal(emitedEvent.optionA, optionA)
+      assert.equal(emitedEvent.optionB, optionB)
+    })
+
+    it('Verifica que la cantidad de apuestas se incremente en 1', async function () {
+      const betsQuantity = await betFactory.getBetsCount()
+      assert.equal(betsQuantity, 2)
+    })
   })
 
-  it('throws an exception for invalid candiates', function () {
-    return Election.deployed()
-      .then(function (instance) {
-        electionInstance = instance
-        return electionInstance.vote(99, { from: accounts[1] })
-      })
-      .then(assert.fail)
-      .catch(function (error) {
-        assert(
-          error.message.indexOf('revert') >= 0,
-          'error message must contain revert'
-        )
-        return electionInstance.candidates(1)
-      })
-      .then(function (candidate1) {
-        var voteCount = candidate1[2]
-        assert.equal(voteCount, 1, 'candidate 1 did not receive any votes')
-        return electionInstance.candidates(2)
-      })
-      .then(function (candidate2) {
-        var voteCount = candidate2[2]
-        assert.equal(voteCount, 0, 'candidate 2 did not receive any votes')
-      })
-  })
+  /*
+  describe('Cierre de una apuesta', async () => {
+    // Datos para crear la apuesta
+    const address = '0x5c256913fd6636d9d109f440e09e42caad5f95b2'
+    const name = 'Clásico Uruguayo'
+    const optionA = 'Gana Peñarol'
+    const optionB = 'No Gana Peñarol'
+    // Crea la apuesta
+    before(async () => {
+      await betFactory.createBet(address, name, optionA, optionB)
+			const bets = await betFactory.bets
+			await betFactory.endBet(bets[0].address)
+    }) 
 
-  it('throws an exception for double voting', function () {
-    return Election.deployed()
-      .then(function (instance) {
-        electionInstance = instance
-        candidateId = 2
-        electionInstance.vote(candidateId, { from: accounts[1] })
-        return electionInstance.candidates(candidateId)
+    it('Verifica que la cantidad de apuestas sea 0', async function () {
+      const result = await betFactory.createBet(address, name, optionA, optionB)
+      // const bets = await betFactory.bets
+      const emitedEvent = result.logs[1].args
+      const betsQuantity = await betFactory.getBets().then(function (result) {
+        return result.length
       })
-      .then(function (candidate) {
-        var voteCount = candidate[2]
-        assert.equal(voteCount, 1, 'accepts first vote')
-        // Try to vote again
-        return electionInstance.vote(candidateId, { from: accounts[1] })
-      })
-      .then(assert.fail)
-      .catch(function (error) {
-        assert(
-          error.message.indexOf('revert') >= 0,
-          'error message must contain revert'
-        )
-        return electionInstance.candidates(1)
-      })
-      .then(function (candidate1) {
-        var voteCount = candidate1[2]
-        assert.equal(voteCount, 1, 'candidate 1 did not receive any votes')
-        return electionInstance.candidates(2)
-      })
-      .then(function (candidate2) {
-        var voteCount = candidate2[2]
-        assert.equal(voteCount, 1, 'candidate 2 did not receive any votes')
-      })
-  }) 
-}) */
+
+      await betFactory.endBet(emitedEvent.contractAddress, 1)
+
+      // result = await betFactory.createBet(address, name, optionA, optionB)
+      // const emitedEvent = result.logs[1].args
+
+      // Verifica que no haya apuestas
+      assert.equal(betsQuantity, betsQuantity - 1)
+    })
+  })
+*/
+})
