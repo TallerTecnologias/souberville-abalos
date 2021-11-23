@@ -66,6 +66,7 @@ AdministrarBetCoin = {
       .then(function (instance) {
         return instance.buyBetCoin(amoutInBetCoin, {
           from: AdministrarBetCoin.account
+          // precisa aprobacion de Exchanger
         })
       })
       .then(function (result) {
@@ -81,6 +82,7 @@ AdministrarBetCoin = {
       .then(function (instance) {
         return instance.sellBetCoin(amoutInBetCoin, {
           from: AdministrarBetCoin.account
+          // precisa aprobacion de Exchanger
         })
       })
       .then(function (result) {
