@@ -41,7 +41,7 @@ contract Exchanger {
         );
     }
 
-    function sellBetCoin(uint256 _amount) public {
+    function sellBetCoin(uint256 _amount) public payable {
         // El vendedor no puede vender mas del saldo que posee
         require(betCoin.balanceOf(msg.sender) >= _amount);
         // Calcula la cantidad de Ether que será canjeada

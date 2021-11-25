@@ -2,8 +2,7 @@ AdministrarBetCoin = {
   web3Provider: null,
   contracts: {},
   account: '0x0',
-  price: 1000000000000000,
-  tokensSold: 0,
+  // price: 1000000000000000,
   buy: true,
 
   init: function () {
@@ -50,46 +49,74 @@ AdministrarBetCoin = {
         ) {
           console.log('Exchanger Address:', exchanger.address)
         })
-        // AdministrarBetCoin.listenForEvents()
+        AdministrarBetCoin.listenForEvents()
         return AdministrarBetCoin.render()
       })
     })
   },
 
-  betCoins: function (n) {
-    return web3.utils.toWei(n, 'ether')
+  // Escucha los eventos que se emiten desde el contrato
+  listenForEvents: function () {
+    AdministrarBetCoin.contracts.Exchanger.deployed().then(function (instance) {
+      instance
+        .BetCoinPurchased(
+          {},
+          {
+            fromBlock: 0,
+            toBlock: 'latest'
+          }
+        )
+        .watch(function (error, event) {
+          console.log('evento lanzado', event)
+          console.log('evento lanzado', error)
+          console.log('evento escuchado')
+          AdministrarBetCoin.render()
+        })
+    })
   },
+
   buyBetCoin: function () {
-    var amountToSell = $('#buyAmount').val()
-    var amoutInBetCoin = betCoins(amountToSell)
+    var amountToBuy = document.getElementById('buyAmount').value
+    console.log('valor a vender: ' + amountToBuy)
+    // var amountToBuy = $('#buyAmount').val()
     AdministrarBetCoin.contracts.Exchanger.deployed()
-      .then(function (instance) {
-        return instance.buyBetCoin(amoutInBetCoin, {
-          from: AdministrarBetCoin.account
-        })
+      .then(function (error, instance) {
+        if (!error) {
+          return instance.buyBetCoin(amountToBuy, {
+            from: AdministrarBetCoin.account,
+            value: amountToBuy,
+            gas: 500000 // Gas limit
+          })
+        }
       })
       .then(function (result) {
         console.log('Se compraron betCoin ' + result)
-        AdministrarBetCoin.render()
+        // AdministrarBetCoin.render()
       })
   },
+
   sellBetCoin: function () {
-    console.log('click en vender')
-    var amountToSell = $('#sellAmount').val()
-    var amoutInBetCoin = betCoins(amountToSell)
+    var amountToSell = document.getElementById('sellAmount').value
+    // var amountToSell = $('#sellAmount').val()
     AdministrarBetCoin.contracts.Exchanger.deployed()
-      .then(function (instance) {
-        return instance.sellBetCoin(amoutInBetCoin, {
-          from: AdministrarBetCoin.account
-        })
+      .then(function (error, instance) {
+        if (!error) {
+          return instance.sellBetCoin(amountToSell, {
+            from: AdministrarBetCoin.account,
+            value: amountToSell,
+            gas: 500000 // Gas limit
+          })
+        }
       })
       .then(function (result) {
         console.log('Se compraron betCoin ' + result)
-        AdministrarBetCoin.render()
+        // AdministrarBetCoin.render()
       })
   },
 
   render: function () {
+    var amountTobuy = document.getElementById('buyAmount').value
+    console.log(amountTobuy)
     web3.eth.getCoinbase(function (err, account) {
       if (err === null) {
         AdministrarBetCoin.account = account
@@ -102,14 +129,14 @@ AdministrarBetCoin = {
         })
       }
     })
-    // Carga el saldo en betCoin
+    // Carga saldo de betCoin
     AdministrarBetCoin.contracts.BetCoin.deployed()
       .then(function (instance) {
-        betCoinInstance = instance
-        return betCoinInstance.balanceOf(AdministrarBetCoin.account)
+        betcoinInstance = instance
+        return betcoinInstance.balanceOf(AdministrarBetCoin.account)
       })
       .then(function (balance) {
-        $('#betCoinBalance').html('Saldo de BetCoin: ' + balance.toNumber())
+        $('#betCoinBalance').html('Cuenta: ' + balance.toNumber())
       })
 
     if (buy) {
