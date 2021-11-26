@@ -2,7 +2,7 @@ AdministrarBetCoin = {
   web3Provider: null,
   contracts: {},
   account: '0x0',
-  // price: 1000000000000000,
+  price: 1000000000,
   buy: true,
 
   init: function () {
@@ -77,46 +77,42 @@ AdministrarBetCoin = {
 
   buyBetCoin: function () {
     var amountToBuy = document.getElementById('buyAmount').value
-    console.log('valor a vender: ' + amountToBuy)
+    console.log('valor a comprar en Betcoin: ' + amountToBuy)
     // var amountToBuy = $('#buyAmount').val()
     AdministrarBetCoin.contracts.Exchanger.deployed()
-      .then(function (error, instance) {
-        if (!error) {
-          return instance.buyBetCoin(amountToBuy, {
-            from: AdministrarBetCoin.account,
-            value: amountToBuy,
-            gas: 500000 // Gas limit
-          })
-        }
+      .then(function (instance) {
+        return instance.buyBetCoin({
+          from: AdministrarBetCoin.account,
+          value: amountToBuy * AdministrarBetCoin.price,
+          gas: 50000 // Gas limit
+        })
       })
       .then(function (result) {
-        console.log('Se compraron betCoin ' + result)
-        // AdministrarBetCoin.render()
+        console.log('betCoin comprado')
+        $('form').trigger('reset') // para resetear los valores del form
+        // se espera por el evento
       })
   },
 
   sellBetCoin: function () {
     var amountToSell = document.getElementById('sellAmount').value
-    // var amountToSell = $('#sellAmount').val()
+    console.log('valor a vender en Betcoin: ' + amountToSell)
     AdministrarBetCoin.contracts.Exchanger.deployed()
-      .then(function (error, instance) {
-        if (!error) {
-          return instance.sellBetCoin(amountToSell, {
-            from: AdministrarBetCoin.account,
-            value: amountToSell,
-            gas: 500000 // Gas limit
-          })
-        }
+      .then(function (instance) {
+        return instance.sellBetCoin(amountToSell, {
+          from: AdministrarBetCoin.account,
+          value: amountToSell * AdministrarBetCoin.price,
+          gas: 50000 // Gas limit
+        })
       })
       .then(function (result) {
-        console.log('Se compraron betCoin ' + result)
-        // AdministrarBetCoin.render()
+        console.log('betCoin vendido')
+        $('form').trigger('reset') // para resetear los valores del form
+        // se espera por el evento
       })
   },
 
   render: function () {
-    var amountTobuy = document.getElementById('buyAmount').value
-    console.log(amountTobuy)
     web3.eth.getCoinbase(function (err, account) {
       if (err === null) {
         AdministrarBetCoin.account = account
