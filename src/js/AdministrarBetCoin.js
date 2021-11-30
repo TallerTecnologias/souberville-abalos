@@ -113,6 +113,15 @@ AdministrarBetCoin = {
   },
 
   render: function () {
+    // Carga saldo de betCoin
+    AdministrarBetCoin.contracts.BetCoin.deployed()
+      .then(async function (instance) {
+        betcoinInstance = instance
+        return await betcoinInstance.balanceOf(AdministrarBetCoin.account).call
+      })
+      .then(async function (balance) {
+        $('#betCoinBalance').html('Saldo en Betty: ' + balance)
+      })
     web3.eth.getCoinbase(function (err, account) {
       if (err === null) {
         AdministrarBetCoin.account = account
@@ -125,15 +134,6 @@ AdministrarBetCoin = {
         })
       }
     })
-    // Carga saldo de betCoin
-    AdministrarBetCoin.contracts.BetCoin.deployed()
-      .then(function (instance) {
-        betcoinInstance = instance
-        return betcoinInstance.balanceOf(AdministrarBetCoin.account)
-      })
-      .then(function (balance) {
-        $('#betCoinBalance').html('Cuenta: ' + balance.toNumber())
-      })
 
     if (buy) {
       $('#sell').hide()

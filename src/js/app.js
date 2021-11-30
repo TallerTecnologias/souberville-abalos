@@ -2,7 +2,6 @@ App = {
   web3Provider: null,
   contracts: {},
   account: '0x0',
-  
 
   init: function () {
     return App.initWeb3()
@@ -20,17 +19,30 @@ App = {
       )
       web3 = new Web3(App.web3Provider)
     }
-    return App.initContract()
+    return await App.initContract()
   },
 
   initContract: function () {
-    $.getJSON('BetFactory.json', function (betFactory) {
-      // Instancia un nuevo contrato truffle desde el artifact
-      App.contracts.BetFactory = TruffleContract(betFactory)
-      // Conecta al proveedor para interactuar con el contrato
-      App.contracts.BetFactory.setProvider(App.web3Provider)
-      App.listenForEvents()
-      return App.render()
+    $.getJSON('BetCoin.json', function (betCoin) {
+      // Instancia el contrato a partir del artefacto
+      App.contracts.BetCoin = TruffleContract(betCoin)
+      // Conecta el proveedor
+      App.contracts.BetCoin.setProvider(App.web3Provider)
+      App.contracts.BetCoin.deployed().then(function (betCoin) {
+        console.log('BetCoin token address', betCoin.address)
+      })
+    }).done(function () {
+      $.getJSON('BetFactory.json', function (betFactory) {
+        // Instancia un nuevo contrato truffle desde el artifact
+        App.contracts.BetFactory = TruffleContract(betFactory)
+        // Conecta al proveedor para interactuar con el contrato
+        App.contracts.BetFactory.setProvider(App.web3Provider)
+        App.contracts.BetFactory.deployed().then(function (betFactory) {
+          console.log('BetFactory address', betFactory.address)
+        })
+        App.listenForEvents()
+        return App.render()
+      })
     })
   },
 
@@ -45,438 +57,69 @@ App = {
             toBlock: 'latest'
           }
         )
-        .watch( async function (error, event) {
+        .watch(async function (error, event) {
           await App.render()
           console.log('event triggered', event)
+          console.log('Error: ' + error)
         })
     })
   },
 
-  //Recarga datos
+  // Recarga datos
   render: function () {
-    App.getQuantity()
-    App.getBetTiles()
-    App.getFirstBetTile()
     web3.eth.getCoinbase(function (err, account) {
       if (err === null) {
         App.account = account
-        $('#accountAddress').html('Usted está conectado con la address: ' + account)
-
+        $('#accountAddress').html(
+          'Usted está conectado con la address: ' + account
+        )
       }
     })
+
+    App.getQuantity()
+    App.getBetTiles()
+    // App.getFirstBetTile()
   },
 
   getBetTiles: function () {
     App.contracts.BetFactory.deployed()
       .then(function (instance) {
-        return  instance.getAllBetsTiles()
+        return web3.eth.contract(instance.abi, instance.address)
+      })
+      .then(function (factory) {
+        return factory.getAllBetsTiles
       })
       .then(function (result) {
-          $("#tiles").empty();
-          $("#tiles").append(result.toString());
-        
+        $('#tiles').empty()
+        $('#tiles').append(result)
       })
   },
 
-  getFirstBetTile: function () {
+  /* getFirstBetTile: function () {
     App.contracts.BetFactory.deployed()
-      .then(function (instance) {
-        //const betabi  = require("betabi.js"); 
-        const contract_abi =[
-          {
-            "inputs": [
-              {
-                "internalType": "address",
-                "name": "oracleAddress",
-                "type": "address"
-              },
-              {
-                "internalType": "string",
-                "name": "name",
-                "type": "string"
-              },
-              {
-                "internalType": "string",
-                "name": "optionA",
-                "type": "string"
-              },
-              {
-                "internalType": "string",
-                "name": "optionB",
-                "type": "string"
-              }
-            ],
-            "stateMutability": "nonpayable",
-            "type": "constructor"
-          },
-          {
-            "anonymous": false,
-            "inputs": [
-              {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "value",
-                "type": "uint256"
-              },
-              {
-                "indexed": true,
-                "internalType": "address",
-                "name": "betAddress",
-                "type": "address"
-              },
-              {
-                "indexed": true,
-                "internalType": "address",
-                "name": "bettorAddress",
-                "type": "address"
-              },
-              {
-                "indexed": false,
-                "internalType": "uint16",
-                "name": "optionSelected",
-                "type": "uint16"
-              }
-            ],
-            "name": "BetGenerated",
-            "type": "event"
-          },
-          {
-            "anonymous": false,
-            "inputs": [
-              {
-                "indexed": true,
-                "internalType": "address",
-                "name": "previousOwner",
-                "type": "address"
-              },
-              {
-                "indexed": true,
-                "internalType": "address",
-                "name": "newOwner",
-                "type": "address"
-              }
-            ],
-            "name": "OwnershipTransferred",
-            "type": "event"
-          },
-          {
-            "inputs": [],
-            "name": "_isActive",
-            "outputs": [
-              {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-              }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-          },
-          {
-            "inputs": [],
-            "name": "_name",
-            "outputs": [
-              {
-                "internalType": "string",
-                "name": "",
-                "type": "string"
-              }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-          },
-          {
-            "inputs": [],
-            "name": "_optionA",
-            "outputs": [
-              {
-                "internalType": "string",
-                "name": "",
-                "type": "string"
-              }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-          },
-          {
-            "inputs": [],
-            "name": "_optionB",
-            "outputs": [
-              {
-                "internalType": "string",
-                "name": "",
-                "type": "string"
-              }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-          },
-          {
-            "inputs": [],
-            "name": "_oracle",
-            "outputs": [
-              {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-              }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-          },
-          {
-            "inputs": [
-              {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-              }
-            ],
-            "name": "bettorInfo",
-            "outputs": [
-              {
-                "internalType": "uint256",
-                "name": "amountBet",
-                "type": "uint256"
-              },
-              {
-                "internalType": "uint16",
-                "name": "teamSelected",
-                "type": "uint16"
-              }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-          },
-          {
-            "inputs": [
-              {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-              }
-            ],
-            "name": "bettors",
-            "outputs": [
-              {
-                "internalType": "address payable",
-                "name": "",
-                "type": "address"
-              }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-          },
-          {
-            "inputs": [],
-            "name": "isOwner",
-            "outputs": [
-              {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-              }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-          },
-          {
-            "inputs": [],
-            "name": "minimumBet",
-            "outputs": [
-              {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-              }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-          },
-          {
-            "inputs": [],
-            "name": "owner",
-            "outputs": [
-              {
-                "internalType": "address payable",
-                "name": "",
-                "type": "address"
-              }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-          },
-          {
-            "inputs": [],
-            "name": "renounceOwnership",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-          },
-          {
-            "inputs": [
-              {
-                "internalType": "address payable",
-                "name": "newOwner",
-                "type": "address"
-              }
-            ],
-            "name": "transferOwnership",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-          },
-          {
-            "inputs": [],
-            "name": "isOracle",
-            "outputs": [
-              {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-              }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-          },
-          {
-            "inputs": [
-              {
-                "internalType": "uint16",
-                "name": "winnerOption",
-                "type": "uint16"
-              }
-            ],
-            "name": "endBet",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-          },
-          {
-            "inputs": [
-              {
-                "internalType": "address",
-                "name": "bettor",
-                "type": "address"
-              }
-            ],
-            "name": "checkBettorExists",
-            "outputs": [
-              {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-              }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-          },
-          {
-            "inputs": [
-              {
-                "internalType": "uint8",
-                "name": "_optionSelected",
-                "type": "uint8"
-              }
-            ],
-            "name": "bet",
-            "outputs": [],
-            "stateMutability": "payable",
-            "type": "function"
-          },
-          {
-            "inputs": [
-              {
-                "internalType": "uint16",
-                "name": "optionWinner",
-                "type": "uint16"
-              }
-            ],
-            "name": "distributePrizes",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-          },
-          {
-            "inputs": [],
-            "name": "GetName",
-            "outputs": [
-              {
-                "internalType": "string",
-                "name": "",
-                "type": "string"
-              }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-          },
-          {
-            "inputs": [],
-            "name": "GetOptionA",
-            "outputs": [
-              {
-                "internalType": "string",
-                "name": "",
-                "type": "string"
-              }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-          },
-          {
-            "inputs": [],
-            "name": "GetOptionB",
-            "outputs": [
-              {
-                "internalType": "string",
-                "name": "",
-                "type": "string"
-              }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-          },
-          {
-            "inputs": [],
-            "name": "AmountOne",
-            "outputs": [
-              {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-              }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-          },
-          {
-            "inputs": [],
-            "name": "AmountTwo",
-            "outputs": [
-              {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-              }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-          }
-        ]
-        var firstBet = web3.eth.contract(contract_abi,instance.getBets()[0])
-        var betName = firstBet.methods.GetName().call()
-        $("#testH").empty();
-        $("#testH").append(betName.toString());
+      .then(async function (instance) {
+        return await web3.eth.contract(instance.abi, instance.address)
       })
-  },
+      .then(async function (factory) {
+        return await factory.getAllBetsTiles
+      })
+      .then(async function (result) {
+        var bet = await result[0]
+        $('#testH').empty()
+        $('#testH').append(bet[0].toString())
+      })
+  }, */
 
-  getQuantity:  function () {
+  getQuantity: async function () {
     App.contracts.BetFactory.deployed()
       .then(function (instance) {
-        return  instance.getBets()
+        return web3.eth.contract(instance.abi, instance.address)
+      })
+      .then(function (factory) {
+        return factory.bets
       })
       .then(function (result) {
-        $('#betQuantity').html('Cantidad de Apuestas Creadas: ' + result.length)
+        $('#betQuantity').html('Cantidad de Apuestas Creadas: ' + result)
       })
   },
 
@@ -485,11 +128,15 @@ App = {
     const optionA = document.getElementById('optionA').value
     const optionB = document.getElementById('optionB').value
     const oracleAddress = document.getElementById('oracleAddress').value
-    console.log('Antes create Bet')
+    // console.log('Antes create Bet')
     App.contracts.BetFactory.deployed().then(function (instance) {
-      instance.createBet(oracleAddress, betName, optionA, optionB)
+      instance.methods
+        .createBet(oracleAddress, betName, optionA, optionB, {
+          from: App.account,
+          gas: 50000
+        })
+        .send()
     })
-    console.log('Despues create Bet')
   },
 
   get createBet() {
@@ -498,8 +145,7 @@ App = {
 
   set createBet(value) {
     this._createBet = value
-  },
-
+  }
 }
 
 $(function () {
