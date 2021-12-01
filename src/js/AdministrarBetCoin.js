@@ -59,7 +59,47 @@ AdministrarBetCoin = {
   betCoins: function (n) {
     return web3.utils.toWei(n, 'ether')
   },
+
   buyBetCoin: function () {
+    var numberOfTokens = parseFloat($('#buyAmount').val())
+    // var amountToBuy = parseFloat(document.getElementById('buyAmount').val)
+    console.log('valor a comprar en Betcoin: ' + numberOfTokens)
+    // var amountToBuy = $('#buyAmount').val()
+    AdministrarBetCoin.contracts.Exchanger.deployed()
+      .then(function (instance) {
+        return instance.buyBetCoin(numberOfTokens).send({
+          from: AdministrarBetCoin.account,
+          value: numberOfTokens * AdministrarBetCoin.tokenPrice,
+          gas: 50000000 // Gas limit
+        })
+      })
+      .then(function (result) {
+        console.log('betCoin comprado')
+        $('form').trigger('reset') // para resetear los valores del form
+        // se espera por el evento
+      })
+  },
+
+  sellBetCoin: function () {
+    var numberOfTokens = parseFloat($('#buyAmount').val())
+    // var amountToSell = parseFloat(document.getElementById('sellAmount').val)
+    console.log('valor a vender en Betcoin: ' + numberOfTokens)
+    AdministrarBetCoin.contracts.Exchanger.deployed()
+      .then(function (instance) {
+        return instance.sellBetCoin(numberOfTokens) /* .send({
+          from: AdministrarBetCoin.account,
+          value: numberOfTokens * AdministrarBetCoin.tokenPrice,
+          gas: 50000000 // Gas limit
+        }) */
+      })
+      .then(function (result) {
+        console.log('betCoin vendido')
+        $('form').trigger('reset') // para resetear los valores del form
+        // se espera por el evento
+      })
+  },
+
+  /* buyBetCoin: function () {
     var amountToSell = $('#buyAmount').val()
     var amoutInBetCoin = betCoins(amountToSell)
     AdministrarBetCoin.contracts.Exchanger.deployed()
@@ -87,7 +127,7 @@ AdministrarBetCoin = {
         console.log('Se compraron betCoin ' + result)
         AdministrarBetCoin.render()
       })
-  },
+  }, */
 
   render: function () {
     web3.eth.getCoinbase(function (err, account) {

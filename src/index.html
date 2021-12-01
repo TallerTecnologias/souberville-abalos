@@ -45,7 +45,6 @@
           <li><a href="index.html">Home</a></li>
           <li><a href="AdministrarBetCoin.html">Administrar BetCoins</a></li>
           <li><a href="CrearApuesta.html">Crear Apuesta</a></li>
-          <li><a href="elements.html">Elements</a></li>
         </ul>
       </nav>
 
@@ -55,32 +54,46 @@
           <header>
             <h1>La mejor aplicación de apuestas de la ORT</h1>
             <p id="accountAddress"></p>
+            <p id="betCoinBalance"></p>
             <p id="betQuantity"></p>
           </header>
-          <div id="betCards">
-          </div>
+          <div id="betCards"></div>
 
-          <section class="tiles" id= "tiles">
-          </section>
-          <hr>
-          <section id= "bettingSection">
-            <h2 id="betNameH2">NOMBRE DE LA APUESTA</h2>
-            <form method="post" action="#"></form>
+          <section class="tiles" id="tiles"></section>
+          <hr />
+          <section id="bettingSection">
+            <h2 id="betNameH2"></h2>
+            <form onSubmit="App.bet(); return false;">
               <div class="col-4 col-12-small">
-                <input type="radio" id="optionA" name="betOption" checked>
-                <label for="optionA">OPCION A</label>
+                <input
+                  type="radio"
+                  id="optionA"
+                  name="betOption"
+                  value="1"
+                  checked
+                />
+                <label for="optionA" id="OptionA"></label>
               </div>
               <div class="col-4 col-12-small">
-                <input type="radio" id="optionB" name="betOption">
-                <label for="optionB">OPCION B</label>
+                <input type="radio" id="optionB" name="betOption" value="2" />
+                <label for="optionB" id="OptionB"></label>
               </div>
               <div class="col-6 col-12-xsmall">
-                <input type="number" name="bet-value" id="bet-value" value="" min="0.000001" placeholder="Inserte valor a apostar" />
+                <input
+                  type="number"
+                  name="bet-value"
+                  id="bet-value"
+                  value=""
+                  min="0.000001"
+                  placeholder="Inserte valor a apostar"
+                />
               </div>
               <h2></h2>
               <div class="col-12">
                 <ul class="actions">
-                  <li><input type="submit" value="Apostar" class="primary" /></li>
+                  <li>
+                    <input type="submit" value="Apostar" class="primary" />
+                  </li>
                   <li><input type="reset" value="Reset" /></li>
                 </ul>
               </div>
