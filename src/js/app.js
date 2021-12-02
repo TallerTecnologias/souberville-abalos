@@ -96,15 +96,15 @@ App = {
     var numberOfTokens = parseFloat($('#bet-value').val())
     let option
     if (document.getElementById('optionA').checked) {
-      option = 1 // document.getElementById('optionA').value
+      option = 1
     } else {
-      option = 2 // document.getElementById('optionB').value
+      option = 2
     }
     App.contracts.BetFactory.deployed().then(function (instance) {
       instance.betOnBet(App.indexOfBet, option, numberOfTokens).send({
         from: App.account,
         value: numberOfTokens,
-        gas: 5000000000 // Gas limit
+        gas: 5000000000 // Gas
       })
     })
   },

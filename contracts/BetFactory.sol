@@ -32,7 +32,6 @@ contract BetFactory is Ownable {
         Bet myBet = new Bet(oracleAddress, name, optionA, optionB);
         bets.push(myBet);
         betAddresses[address(myBet)] = myBet;
-        //Ver si tenemos que usar el address de la apuesta como id
         uint256 id = bets.length - 1;
         betToOwner[id] = msg.sender;
         emit NewBet(oracleAddress, name, optionA, optionB, address(myBet));
@@ -51,24 +50,6 @@ contract BetFactory is Ownable {
     //Termina una apuesta, se ingresa el address del contrato de la apuesta y la opcion ganadora
     function endBet(address betAddress, uint16 winnerOption) public {
         betAddresses[betAddress].endBet(winnerOption);
-    }
-
-    //Obtiene los datos de las apuestas a cargar en el frontend (Esto es provisorio)
-    function getAllBetsDescription() public view returns (string memory) {
-        string memory betsNames;
-        for (uint256 i = 0; i < bets.length; i++) {
-            betsNames = append(betsNames, "<div><ul><li>Indice: ");
-            betsNames = append(betsNames, intToString(i));
-            betsNames = append(betsNames, "</li><li>Nombre: ");
-            betsNames = append(betsNames, bets[i].GetName());
-            betsNames = append(betsNames, "</li><li>Opcion A: ");
-            betsNames = append(betsNames, bets[i].GetOptionA());
-            betsNames = append(betsNames, "</li><li>Opcion B: ");
-            betsNames = append(betsNames, bets[i].GetOptionB());
-            betsNames = append(betsNames, "</ul></div>");
-        }
-
-        return betsNames;
     }
 
     function getBetName(uint256 i) public view returns (string memory) {
